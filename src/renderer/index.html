@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<title>DreamVPN</title>
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; script-src 'self'; worker-src blob:">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div id="globe"></div>
+
+  <aside id="panel">
+    <header>
+      <h1><img class="logo" src="../../build/icon.png" alt="">DreamVPN</h1>
+      <span class="hr"><span id="badge" class="badge">не подключено</span><button id="fold" class="icon" title="Свернуть">&#9652;</button></span>
+    </header>
+
+    <div class="bar">
+      <span id="quota"></span>
+      <span class="icons">
+        <button id="ping" class="icon" title="Проверить серверы">&#8635;</button>
+        <button id="gear" class="icon" title="Настройки">&#9881;</button>
+      </span>
+    </div>
+
+    <section id="settings" hidden>
+      <div class="cap">Подписка или ключ</div>
+      <input id="input" type="text" placeholder="Ссылка подписки или vless://…" spellcheck="false">
+      <div class="row">
+        <button id="paste" class="ghost">Вставить</button>
+        <button id="add" class="ghost">Добавить</button>
+      </div>
+      <label class="opt">Ядро:
+        <select id="core"><option value="auto">Авто (Xray для VLESS)</option><option value="xray">Xray</option><option value="singbox">sing-box</option></select>
+      </label>
+      <label class="opt"><input type="checkbox" id="frag"> Фрагментация TLS (из подписки)</label>
+      <label class="opt"><input type="checkbox" id="autofold"> Сворачивать панель после подключения</label>
+      <div class="opt upd"><span id="ver"></span><button id="upd" class="ghost">Проверить обновления</button></div>
+      <div id="updmsg"></div>
+      <details><summary>Лог ядра</summary><pre id="log"></pre></details>
+    </section>
+
+    <div id="list"></div>
+
+    <div class="footer">
+      <div id="cur"></div>
+      <div id="update" hidden><span id="updtext"></span><button id="updbtn" class="ghost">Перезапустить</button></div>
+      <button id="connect" disabled>Подключить</button>
+      <div id="status"></div>
+    </div>
+  </aside>
+
+  <script src="../../node_modules/topojson-client/dist/topojson-client.min.js"></script>
+  <script src="../../node_modules/globe.gl/dist/globe.gl.min.js"></script>
+  <script src="renderer.js"></script>
+</body>
+</html>

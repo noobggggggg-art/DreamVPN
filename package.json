@@ -1,0 +1,50 @@
+{
+  "name": "dreamvpn",
+  "version": "0.1.0",
+  "description": "VPN client: Electron + sing-box / Xray, TUN only, Windows admin",
+  "main": "src/main/main.js",
+  "scripts": {
+    "start": "electron .",
+    "test": "node test/parser.test.js",
+    "dist": "electron-builder --win"
+  },
+  "devDependencies": {
+    "electron": "^33.0.0",
+    "electron-builder": "^25.0.0"
+  },
+  "build": {
+    "appId": "local.dreamvpn",
+    "productName": "DreamVPN",
+    "files": [
+      "src/**/*",
+      "build/icon.png",
+      "build/icon.ico",
+      "package.json"
+    ],
+    "extraResources": [
+      {
+        "from": "bin",
+        "to": "bin"
+      }
+    ],
+    "win": {
+      "target": "nsis",
+      "requestedExecutionLevel": "requireAdministrator",
+      "icon": "build/icon.ico"
+    },
+    "publish": [
+      {
+        "provider": "generic",
+        "url": "https://CHANGE-ME.example/dreamvpn/"
+      }
+    ]
+  },
+  "dependencies": {
+    "flag-icons": "^7.2.3",
+    "globe.gl": "^2.34.0",
+    "topojson-client": "^3.1.0",
+    "world-atlas": "^2.0.2",
+    "electron-updater": "^6.3.9"
+  },
+  "private": true
+}
