@@ -7,6 +7,7 @@ contextBridge.exposeInMainWorld('vpn', {
   disconnect: () => ipcRenderer.invoke('vpn:disconnect'),
   ping: () => ipcRenderer.invoke('servers:ping'),
   flags: codes => ipcRenderer.invoke('flags:get', codes),
+  setLang: l => ipcRenderer.invoke('lang:set', l),
   version: () => ipcRenderer.invoke('app:version'),
   checkUpdate: () => ipcRenderer.invoke('update:check'),
   installUpdate: () => ipcRenderer.invoke('update:install'),

@@ -7,6 +7,7 @@ const path = require('path');
 const { pickBackend } = require('../parser');
 const { buildSingboxConfig } = require('./singbox');
 const { buildXrayConfig, SOCKS_PORT } = require('./xray');
+const { m } = require('./messages');
 
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 
@@ -20,7 +21,7 @@ class CoreManager extends EventEmitter {
 
   _bin(name) {
     const p = path.join(this.binDir, name);
-    if (!fs.existsSync(p)) throw new Error(`Не найден ${name}. Положи его в папку bin/`);
+    if (!fs.existsSync(p)) throw new Error(m('bin_missing', { name }));
     return p;
   }
 
@@ -29,7 +30,7 @@ class CoreManager extends EventEmitter {
     const log = d => this.emit('log', d.toString());
     proc.stdout.on('data', log); proc.stderr.on('data', log);
     proc.on('exit', code => {
-      this.emit('log', `[dreamvpn] ${label} завершился (код ${code})\n`);
+      this.emit('log', m('proc_exit', { label, code }) + '\n');
       if (this.state === 'connected') { this.state = 'idle'; this.emit('state', 'dropped', code); }
     });
     this.procs.push(proc);
@@ -41,11 +42,13 @@ class CoreManager extends EventEmitter {
     this._set('connecting');
     try {
       const backend = pickBackend(server, opts.core);
-      this.emit('log', `[dreamvpn] ядро: ${backend}, ${server.protocol}/${server.security}/${server.transport} ${server.host}:${server.port}, fm: ${opts.fragment && server.fragment ? 'вкл' : 'выкл'}\n`);
+      this.emit('log', m('core_info', {
+        backend, desc: `${server.protocol}/${server.security}/${server.transport} ${server.host}:${server.port}`,
+        fm: opts.fragment && server.fragment ? m('fm_on') : m('fm_off')
+      }) + '\n');
       if (backend === 'singbox') await this._singbox(server, opts); else await this._xray(server, opts);
       await sleep(1500);
-      const dead = this.procs.find(p => p.exitCode !== null);
-      if (dead) throw new Error('Ядро завершилось сразу после запуска, см. лог');
+      if (this.procs.some(p => p.exitCode !== null)) throw new Error(m('core_died'));
       this.current = server; this._set('connected');
     } catch (e) {
       await this.disconnect(); this._set('idle'); throw e;
@@ -55,7 +58,7 @@ class CoreManager extends EventEmitter {
   _writeCfg(name, cfg) {
     const p = path.join(this.dataDir, name);
     fs.writeFileSync(p, JSON.stringify(cfg, null, 2));
-    this.emit('log', `[dreamvpn] конфиг: ${p}\n`);
+    this.emit('log', m('cfg_path', { path: p }) + '\n');
     return p;
   }
 
@@ -67,11 +70,11 @@ class CoreManager extends EventEmitter {
   async _xray(server, opts) {
     const xrayExe = this._bin('xray.exe'), sbExe = this._bin('sing-box.exe'); this._bin('wintun.dll');
     const ip = /^\d+\.\d+\.\d+\.\d+$/.test(server.host) ? server.host : (await dns.lookup(server.host, { family: 4 })).address;
-    this.emit('log', `[dreamvpn] адрес сервера: ${ip}\n`);
+    this.emit('log', m('server_addr', { ip }) + '\n');
 
     this._run(xrayExe, ['run', '-c', this._writeCfg('xray.json', buildXrayConfig({ ...server, host: ip }, opts))], 'xray');
     await sleep(900);
-    if (this.procs[0].exitCode !== null) throw new Error('Xray не запустился, см. лог');
+    if (this.procs[0].exitCode !== null) throw new Error(m('xray_failed'));
 
     const tunCfg = buildSingboxConfig(server, { ...opts, upstream: { port: SOCKS_PORT, bypass: [ip] } });
     this._run(sbExe, ['run', '-c', this._writeCfg('singbox-tun.json', tunCfg)], 'sing-box (TUN)');
@@ -81,7 +84,7 @@ class CoreManager extends EventEmitter {
     const procs = this.procs;
     this.procs = []; this.current = null;
     if (this.state === 'connected') this.state = 'idle';
-    procs.reverse().forEach(p => { try { p.kill(); } catch { /* уже мёртв */ } });
+    procs.reverse().forEach(p => { try { p.kill(); } catch { /* already dead */ } });
   }
 
   _set(s) { this.state = s; this.emit('state', s); }

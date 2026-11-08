@@ -32,7 +32,7 @@ function base(raw, protocol, name, host, port) {
     protocol, host, port: Number(port),
     name: cleanName(name) || host,
     country: cc,
-    geo: cc && COUNTRIES[cc] ? { lat: COUNTRIES[cc][1], lon: COUNTRIES[cc][2], countryName: COUNTRIES[cc][0] } : null,
+    geo: cc && COUNTRIES[cc] ? { lat: COUNTRIES[cc][2], lon: COUNTRIES[cc][3], countryName: COUNTRIES[cc][0], names: { ru: COUNTRIES[cc][0], en: COUNTRIES[cc][1] } } : null,
     traffic: extractTraffic(name),
     raw
   };
@@ -128,7 +128,7 @@ async function importAny(input, fetchFn = fetch) {
   input = input.trim();
   if (/^https?:\/\//i.test(input)) {
     const res = await fetchFn(input, { headers: { 'User-Agent': 'DreamVPN/0.1' } });
-    if (!res.ok) throw new Error(`Подписка вернула HTTP ${res.status}`);
+    if (!res.ok) throw Object.assign(new Error(`HTTP ${res.status}`), { code: 'HTTP', status: res.status });
     return { servers: parseSubscription(await res.text()), userinfo: parseUserInfo(res.headers.get('subscription-userinfo')), title: parseTitle(res.headers.get('profile-title')), source: input };
   }
   return { servers: parseSubscription(input), userinfo: null, title: null, source: null };

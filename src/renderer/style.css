@@ -1,6 +1,6 @@
 :root {
   --bg: #05070d; --panel: rgba(12, 17, 30, .94); --line: rgba(120, 150, 210, .16);
-  --text: #d7e0f3; --dim: #7f8ba8; --accent: #4aa3ff; --ok: #3ddc97; --warn: #ffb454; --bad: #ff6b6b;
+  --text: #d7e0f3; --dim: #7f8ba8; --accent: #4aa3ff; --accent-rgb: 74,163,255; --on-accent: #04101f; --ok: #3ddc97; --warn: #ffb454; --bad: #ff6b6b;
 }
 * { box-sizing: border-box; }
 html, body { margin: 0; height: 100%; background: var(--bg); color: var(--text);
@@ -27,7 +27,7 @@ button.ghost:hover { border-color: var(--accent); }
 #list li { display: flex; align-items: center; gap: 10px; padding: 9px 10px; border-radius: 10px; cursor: pointer;
   border: 1px solid transparent; }
 #list li:hover { background: rgba(255,255,255,.04); }
-#list li.sel { border-color: var(--accent); background: rgba(74,163,255,.08); }
+#list li.sel { border-color: var(--accent); background: rgba(var(--accent-rgb),.08); }
 #list li.live { border-color: var(--ok); background: rgba(61,220,151,.08); }
 .flag { font-size: 20px; width: 26px; text-align: center; }
 .nm { flex: 1; min-width: 0; }
@@ -41,7 +41,7 @@ button.ghost:hover { border-color: var(--accent); }
 input[type=checkbox] { width: auto; }
 select { flex: 1; background: rgba(255,255,255,.04); color: var(--text); border: 1px solid var(--line); border-radius: 8px; padding: 4px 6px; }
 select option { background: #0c111e; }
-#connect { width: 100%; padding: 14px; font-size: 16px; font-weight: 600; background: var(--accent); color: #04101f; border: 0; }
+#connect { width: 100%; padding: 14px; font-size: 16px; font-weight: 600; background: var(--accent); color: var(--on-accent); border: 0; }
 #connect:disabled { opacity: .35; cursor: default; }
 #connect.on { background: var(--bad); color: #fff; }
 #status { min-height: 18px; margin-top: 8px; font-size: 12px; color: var(--dim); text-align: center; }
@@ -90,3 +90,70 @@ h1 { display: flex; align-items: center; gap: 10px; }
 #panel.compact { bottom: auto; width: 270px; }
 #panel.compact .bar, #panel.compact #settings, #panel.compact #list { display: none !important; }
 #panel.compact #cur { display: block; }
+
+/* --- исправление шапки + свёрнутый режим --- */
+header { gap: 8px; }
+h1, .badge { white-space: nowrap; }
+#panel.compact { width: 300px; }
+#panel.compact .hr { display: contents; }
+#panel.compact header { flex-wrap: wrap; row-gap: 8px; }
+#panel.compact h1 { flex: 1; min-width: 0; }
+#panel.compact #fold { order: 1; }
+#panel.compact #badge { order: 2; flex: 1 0 100%; text-align: center; padding: 4px 10px; }
+
+/* --- виды --- */
+#map { position: fixed; inset: 0; width: 100%; height: 100%; cursor: grab; }
+#map:active { cursor: grabbing; }
+body.view-classic #globe, body.view-classic #map, body.view-globe #map, body.view-map #globe { display: none; }
+#settings { max-height: 60vh; overflow-y: auto; }
+.cap.sp { margin-top: 12px; }
+.seg { display: flex; gap: 6px; margin-bottom: 12px; }
+.seg button { flex: 1; padding: 6px 4px; font-size: 12px; background: transparent; }
+.seg button.on { border-color: var(--accent); background: rgba(var(--accent-rgb), .14); }
+.swatches { display: flex; gap: 8px; align-items: center; margin-bottom: 4px; }
+button.sw { width: 24px; height: 24px; padding: 0; border-radius: 50%; border: 2px solid transparent; }
+button.sw.on { border-color: #fff; }
+#customColor { width: 28px; height: 28px; padding: 0; border: 0; background: none; cursor: pointer; }
+
+/* --- «Классика»: по центру кнопка включения и список серверов --- */
+body.view-classic { background: radial-gradient(900px 520px at 50% -10%, rgba(var(--accent-rgb), .22), var(--bg) 65%); }
+body.view-classic #panel { position: relative; top: auto; right: auto; bottom: auto; margin: 16px auto; width: min(480px, calc(100vw - 32px)); height: calc(100vh - 32px); }
+body.view-classic #panel.compact { height: auto; width: 320px; }
+body.view-classic .footer { order: 1; }
+body.view-classic .bar { order: 2; }
+body.view-classic #settings { order: 3; }
+body.view-classic #list { order: 4; }
+body.view-classic #cur { display: block; }
+body.view-classic #status, body.view-classic #cur { text-align: center; }
+body.view-classic #connect { display: block; width: 140px; height: 140px; margin: 6px auto 4px; border-radius: 50%; font-size: 14px;
+  box-shadow: 0 0 44px rgba(var(--accent-rgb), .35); }
+body.view-classic #connect::before { content: ''; display: block; width: 44px; height: 44px; margin: 0 auto 8px;
+  background-color: currentColor; -webkit-mask: url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2024%2024'%20fill='none'%20stroke='black'%20stroke-width='2.4'%20stroke-linecap='round'%3E%3Cpath%20d='M12%203v9'/%3E%3Cpath%20d='M6.6%206.8a8%208%200%201%200%2010.8%200'/%3E%3C/svg%3E") center / contain no-repeat; mask: url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2024%2024'%20fill='none'%20stroke='black'%20stroke-width='2.4'%20stroke-linecap='round'%3E%3Cpath%20d='M12%203v9'/%3E%3Cpath%20d='M6.6%206.8a8%208%200%201%200%2010.8%200'/%3E%3C/svg%3E") center / contain no-repeat; }
+body.view-classic #connect.on { box-shadow: 0 0 44px rgba(255, 107, 107, .35); }
+
+/* --- боковое окно настроек --- */
+#panel { transform: translateX(var(--shift, 0px)); transition: width .2s, transform .34s cubic-bezier(.2,.8,.2,1); }
+#settings { position: fixed; z-index: 20; top: 16px; bottom: 16px; left: 0; width: 340px; max-height: none; display: flex; flex-direction: column;
+  padding: 16px; border: 1px solid var(--line); border-radius: 18px; background: var(--panel); overflow: hidden;
+  opacity: 0; visibility: hidden; pointer-events: none; transform: translateX(var(--slide, 28px));
+  transition: transform .34s cubic-bezier(.2,.8,.2,1), opacity .26s ease, visibility 0s linear .34s; }
+#settings.open { opacity: 1; visibility: visible; pointer-events: auto; transform: none;
+  transition: transform .34s cubic-bezier(.2,.8,.2,1), opacity .26s ease, visibility 0s; }
+.dhead { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+.dhead h2 { margin: 0; font-size: 15px; letter-spacing: .04em; }
+.dbody { flex: 1; overflow-y: auto; padding-right: 4px; }
+
+/* --- окно настроек: на глобусе и карте закрывает только панель, сцена остаётся видна --- */
+#settings { background: #0c111e; }
+.opt > span { display: inline; }
+.opt input[type=checkbox] + span { margin-left: 8px; }
+
+/* --- выбор языка при первом запуске --- */
+#langpick { position: fixed; inset: 0; z-index: 100; display: grid; place-items: center; background: rgba(5, 7, 13, .82); }
+.lp-card { width: 340px; padding: 28px 24px; text-align: center; border: 1px solid var(--line); border-radius: 20px; background: #0c111e; }
+.lp-logo { width: 72px; height: 72px; border-radius: 18px; }
+.lp-card h2 { margin: 12px 0 4px; font-size: 22px; letter-spacing: .04em; }
+.lp-card p { margin: 0 0 18px; color: var(--dim); font-size: 13px; }
+.lp-btns { display: flex; gap: 10px; }
+.lp-btns button { flex: 1; padding: 12px 0; font-size: 15px; font-weight: 600; background: transparent; }
+.lp-btns button:hover { border-color: var(--accent); background: rgba(var(--accent-rgb), .12); }

@@ -8,50 +8,85 @@
 </head>
 <body>
   <div id="globe"></div>
+  <canvas id="map"></canvas>
 
   <aside id="panel">
     <header>
       <h1><img class="logo" src="../../build/icon.png" alt="">DreamVPN</h1>
-      <span class="hr"><span id="badge" class="badge">не подключено</span><button id="fold" class="icon" title="Свернуть">&#9652;</button></span>
+      <span class="hr"><span id="badge" class="badge"></span><button id="fold" class="icon">&#9652;</button></span>
     </header>
 
     <div class="bar">
       <span id="quota"></span>
       <span class="icons">
-        <button id="ping" class="icon" title="Проверить серверы">&#8635;</button>
-        <button id="gear" class="icon" title="Настройки">&#9881;</button>
+        <button id="ping" class="icon" data-i18n-title="ping_title">&#8635;</button>
+        <button id="gear" class="icon" data-i18n-title="gear_title">&#9881;</button>
       </span>
     </div>
-
-    <section id="settings" hidden>
-      <div class="cap">Подписка или ключ</div>
-      <input id="input" type="text" placeholder="Ссылка подписки или vless://…" spellcheck="false">
-      <div class="row">
-        <button id="paste" class="ghost">Вставить</button>
-        <button id="add" class="ghost">Добавить</button>
-      </div>
-      <label class="opt">Ядро:
-        <select id="core"><option value="auto">Авто (Xray для VLESS)</option><option value="xray">Xray</option><option value="singbox">sing-box</option></select>
-      </label>
-      <label class="opt"><input type="checkbox" id="frag"> Фрагментация TLS (из подписки)</label>
-      <label class="opt"><input type="checkbox" id="autofold"> Сворачивать панель после подключения</label>
-      <div class="opt upd"><span id="ver"></span><button id="upd" class="ghost">Проверить обновления</button></div>
-      <div id="updmsg"></div>
-      <details><summary>Лог ядра</summary><pre id="log"></pre></details>
-    </section>
 
     <div id="list"></div>
 
     <div class="footer">
       <div id="cur"></div>
-      <div id="update" hidden><span id="updtext"></span><button id="updbtn" class="ghost">Перезапустить</button></div>
-      <button id="connect" disabled>Подключить</button>
+      <div id="update" hidden><span id="updtext"></span><button id="updbtn" class="ghost" data-i18n="upd_restart"></button></div>
+      <button id="connect" disabled></button>
       <div id="status"></div>
     </div>
   </aside>
 
+  <aside id="settings" aria-hidden="true">
+    <div class="dhead"><h2 data-i18n="settings_title"></h2><button id="settingsClose" class="icon" data-i18n-title="close_title">&#10005;</button></div>
+    <div class="dbody">
+      <div class="cap" data-i18n="sub_label"></div>
+      <input id="input" type="text" data-i18n-ph="sub_placeholder" spellcheck="false">
+      <div class="row">
+        <button id="paste" class="ghost" data-i18n="paste"></button>
+        <button id="add" class="ghost" data-i18n="add"></button>
+      </div>
+
+      <div class="cap sp" data-i18n="view_label"></div>
+      <div class="seg" id="views">
+        <button data-view="globe" data-i18n="view_globe"></button><button data-view="classic" data-i18n="view_classic"></button><button data-view="map" data-i18n="view_map" data-i18n-title="view_map_title"></button>
+      </div>
+
+      <div class="cap" data-i18n="color_label"></div>
+      <div class="swatches" id="swatches">
+        <button class="sw" data-c="#4aa3ff" style="background:#4aa3ff" data-i18n-title="col_blue"></button>
+        <button class="sw" data-c="#9b6bff" style="background:#9b6bff" data-i18n-title="col_violet"></button>
+        <button class="sw" data-c="#ff6bb5" style="background:#ff6bb5" data-i18n-title="col_pink"></button>
+        <button class="sw" data-c="#2dd4bf" style="background:#2dd4bf" data-i18n-title="col_teal"></button>
+        <button class="sw" data-c="#ffa94d" style="background:#ffa94d" data-i18n-title="col_orange"></button>
+        <input type="color" id="customColor" value="#4aa3ff" data-i18n-title="col_custom">
+      </div>
+
+      <div class="cap sp" data-i18n="lang_label"></div>
+      <div class="seg" id="langs"><button data-lang="ru">Русский</button><button data-lang="en">English</button></div>
+
+      <label class="opt"><span data-i18n="core_label"></span>
+        <select id="core"><option value="auto" data-i18n="core_auto"></option><option value="xray">Xray</option><option value="singbox">sing-box</option></select>
+      </label>
+      <label class="opt"><input type="checkbox" id="frag"><span data-i18n="frag"></span></label>
+      <label class="opt"><input type="checkbox" id="autofold"><span data-i18n="autofold"></span></label>
+      <div class="opt upd"><span id="ver"></span><button id="upd" class="ghost" data-i18n="check_updates"></button></div>
+      <div id="updmsg"></div>
+      <details><summary data-i18n="log_title"></summary><pre id="log"></pre></details>
+    </div>
+  </aside>
+
+  <div id="langpick" hidden>
+    <div class="lp-card">
+      <img class="lp-logo" src="../../build/icon.png" alt="">
+      <h2>DreamVPN</h2>
+      <p>Выберите язык · Choose your language</p>
+      <div class="lp-btns"><button data-lang="ru">Русский</button><button data-lang="en">English</button></div>
+    </div>
+  </div>
+
   <script src="../../node_modules/topojson-client/dist/topojson-client.min.js"></script>
   <script src="../../node_modules/globe.gl/dist/globe.gl.min.js"></script>
+  <script src="strings.js"></script>
+  <script src="i18n.js"></script>
+  <script src="map.js"></script>
   <script src="renderer.js"></script>
 </body>
 </html>

@@ -6,6 +6,7 @@ const net = require('net');
 const { execSync, spawn } = require('child_process');
 const { importAny } = require('../parser');
 const { CoreManager } = require('../core/manager');
+const { setLang, m } = require('../core/messages');
 
 let win, core;
 const subs = new Map();                       // id подписки -> серверы
@@ -85,7 +86,9 @@ app.whenReady().then(() => {
   core.on('log', l => win?.webContents.send('vpn:log', l));
 
   ipcMain.handle('servers:import', async (_e, input, subId) => {
-    const res = await importAny(input);
+    let res;
+    try { res = await importAny(input); }
+    catch (e) { if (e.code === 'HTTP') throw new Error(m('sub_http', { status: e.status })); throw e; }
     const list = res.servers.map(s => ({ ...s, id: `${subId}:${s.id}`, sub: subId }));
     subs.set(subId, list);
     return { servers: list.map(({ raw, secret, ...pub }) => pub), userinfo: res.userinfo, title: res.title };
@@ -93,7 +96,7 @@ app.whenReady().then(() => {
   ipcMain.handle('servers:remove', (_e, subId) => { subs.delete(subId); });
   ipcMain.handle('vpn:connect', async (_e, id, opts) => {
     const s = allServers().find(x => x.id === id);
-    if (!s) throw new Error('Сервер не найден');
+    if (!s) throw new Error(m('server_not_found'));
     await core.connect(s, opts || {});
   });
   ipcMain.handle('vpn:disconnect', () => core.disconnect());
@@ -105,6 +108,7 @@ app.whenReady().then(() => {
   ipcMain.handle('flags:get', (_e, codes) => Object.fromEntries((codes || []).map(c => [c, flagDataUri(c)])));
   ipcMain.handle('world:get', () => require('world-atlas/countries-110m.json'));
 
+  ipcMain.handle('lang:set', (_e, l) => { setLang(l); });
   ipcMain.handle('app:version', () => app.getVersion());
   ipcMain.handle('update:check', async () => {
     if (!app.isPackaged) return { state: 'dev' };

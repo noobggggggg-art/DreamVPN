@@ -1,11 +1,11 @@
 {
   "name": "dreamvpn",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "VPN client: Electron + sing-box / Xray, TUN only, Windows admin",
   "main": "src/main/main.js",
   "scripts": {
     "start": "electron .",
-    "test": "node test/parser.test.js",
+    "test": "node test/parser.test.js && node test/i18n.test.js",
     "dist": "electron-builder --win"
   },
   "devDependencies": {
