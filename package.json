@@ -32,12 +32,8 @@
       "requestedExecutionLevel": "requireAdministrator",
       "icon": "build/icon.ico"
     },
-    "publish": [
-      {
-        "provider": "generic",
-        "url": "https://CHANGE-ME.example/dreamvpn/"
-      }
-    ]
+    "publish": [{ "provider": "github", "owner": "noobggggggg-art", "repo": "DreamVPN" }],
+    "nsis": { "artifactName": "DreamVPN-Setup-${version}.${ext}" }
   },
   "dependencies": {
     "flag-icons": "^7.2.3",
