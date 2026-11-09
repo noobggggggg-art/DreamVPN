@@ -272,7 +272,11 @@ function showUpdate(u) {
   if (u.state === 'ready') $('#updtext').textContent = tr('upd_banner', { v: u.version });
 }
 window.vpn.onUpdate(showUpdate);
-$('#upd').onclick = async () => showUpdate(await window.vpn.checkUpdate());
+$('#upd').onclick = async () => {
+  showUpdate({ state: 'checking' });
+  const r = await window.vpn.checkUpdate();     // null — итог придёт событием; ответ только для dev / off / error
+  if (r) showUpdate(r);
+};
 $('#updbtn').onclick = () => window.vpn.installUpdate();
 
 // ---------- виды: глобус / классика / политическая карта ----------

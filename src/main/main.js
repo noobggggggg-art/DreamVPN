@@ -113,7 +113,7 @@ app.whenReady().then(() => {
   ipcMain.handle('update:check', async () => {
     if (!app.isPackaged) return { state: 'dev' };
     if (!autoUpdater) return { state: 'off' };
-    try { await autoUpdater.checkForUpdates(); return { state: 'checking' }; }
+    try { await autoUpdater.checkForUpdates(); return null; }   // итог придёт событием, ответ его не перетирает
     catch (e) { return { state: 'error', message: String(e?.message || e).split('\n')[0].slice(0, 160) }; }
   });
   ipcMain.handle('update:install', () => { autoUpdater?.quitAndInstall(); });
