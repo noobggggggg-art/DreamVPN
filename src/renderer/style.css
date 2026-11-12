@@ -157,3 +157,14 @@ body.view-classic #connect.on { box-shadow: 0 0 44px rgba(255, 107, 107, .35); }
 .lp-btns { display: flex; gap: 10px; }
 .lp-btns button { flex: 1; padding: 12px 0; font-size: 15px; font-weight: 600; background: transparent; }
 .lp-btns button:hover { border-color: var(--accent); background: rgba(var(--accent-rgb), .12); }
+
+/* --- индикатор проверки серверов --- */
+@keyframes dvspin { to { transform: rotate(360deg); } }
+.ping-ico { display: inline-block; }
+#ping.spin { color: var(--accent); border-color: var(--accent); }
+#ping.spin .ping-ico { animation: dvspin .9s linear infinite; }
+.spin-sm { display: inline-block; width: 12px; height: 12px; border: 2px solid rgba(var(--accent-rgb), .25); border-top-color: var(--accent);
+  border-radius: 50%; animation: dvspin .8s linear infinite; vertical-align: middle; }
+button.icon:disabled { opacity: .4; cursor: default; }
+
+#copylog { margin: 8px 0 0; padding: 5px 12px; flex: none; }

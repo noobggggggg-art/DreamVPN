@@ -3,7 +3,7 @@ const $ = s => document.querySelector(s);
 
 let servers = [], selected = null, prev = null, state = 'idle', connectedId = null, pings = {};
 let subs = [], serversBySub = {}, flagUrls = {};
-let appVersion = '', lastUpdate = null;
+let appVersion = '', lastUpdate = null, pinging = false;
 let view = 'globe', spin = true, arcPair = null, landFeatures = [], themeHue = 209, accent = '#4aa3ff';
 
 // ---------- глобус ----------
@@ -118,7 +118,8 @@ function serverRow(s) {
   li.innerHTML = `<span class="flag">${flagHtml(s.country)}</span>
     <span class="nm"><b></b><small></small></span><span class="ping"></span><span class="tag"></span>`;
   const pv = pings[s.id], pe = li.querySelector('.ping');
-  if (pv === -1) pe.textContent = 'UDP';
+  if (pinging) pe.innerHTML = '<i class="spin-sm"></i>';          // идёт проверка: вместо цифры крутится кружок
+  else if (pv === -1) pe.textContent = 'UDP';
   else if (pv === null) { pe.textContent = '✕'; pe.className = 'ping bad'; }
   else if (pv !== undefined) { pe.textContent = tr('ms', { n: pv }); pe.className = 'ping ' + (pv < 300 ? 'ok' : 'slow'); }
   li.querySelector('b').textContent = s.name;
@@ -196,10 +197,10 @@ $('#input').addEventListener('keydown', e => { if (e.key === 'Enter') addSub(e.t
 
 // ---------- проверка доступности (только пока VPN выключен) ----------
 async function runPing() {
-  if (state !== 'idle' || !servers.length) return;
-  setStatus(tr('checking_servers'));
+  if (state !== 'idle' || !servers.length || pinging) return;
+  pinging = true; $('#ping').classList.add('spin'); setStatus(tr('checking_servers')); render();
   try { pings = await window.vpn.ping(); } catch { pings = {}; }
-  setStatus(''); render();
+  pinging = false; $('#ping').classList.remove('spin'); setStatus(''); render();
 }
 $('#ping').onclick = runPing;
 
@@ -211,15 +212,25 @@ function setState(s) {
   badge.className = 'badge ' + (s === 'connected' ? 'connected' : s === 'connecting' ? 'connecting' : '');
   badge.textContent = { idle: tr('badge_idle'), connecting: tr('badge_connecting'), connected: tr('badge_connected'), dropped: tr('badge_dropped') }[s] || s;
   btn.className = s === 'connected' ? 'on' : '';
-  btn.textContent = s === 'connected' ? tr('btn_disconnect') : s === 'connecting' ? tr('btn_connecting') : tr('btn_connect');
-  btn.disabled = s === 'connecting' || (s === 'idle' && !selected);
+  btn.textContent = s === 'connected' ? tr('btn_disconnect') : s === 'connecting' ? tr('btn_cancel') : tr('btn_connect');
+  btn.disabled = s === 'idle' && !selected;     // во время подключения кнопка работает как «Отменить»
+  $('#ping').disabled = s !== 'idle';             // пока VPN включён, проверка серверов не имеет смысла
 }
 $('#connect').onclick = async () => {
+  if (state === 'connecting') { await window.vpn.disconnect(); return; }        // отмена подключения
   if (state === 'connected') { await window.vpn.disconnect(); connectedId = null; setState('idle'); spin = true; if (view === 'globe') { globe.controls().autoRotate = true; globe.pointOfView({ altitude: 2.4 }, 1400); } else if (view === 'map') PoliticalMap.reset(); redrawPoints(); render(); return; }
   if (!selected) return;
-  setStatus(''); setState('connecting');
-  try { await window.vpn.connect(selected.id, { fragment: $('#frag').checked, core: $('#core').value }); connectedId = selected.id; setState('connected'); if ($('#autofold').checked) setCompact(true); }
-  catch (e) { connectedId = null; setState('idle'); setStatus(e.message.replace(/^Error invoking remote method.*?Error: /, ''), true); }
+  setStatus(tr('connecting_hint')); setState('connecting');
+  try { const r = await window.vpn.connect(selected.id, { fragment: $('#frag').checked, core: $('#core').value });
+    connectedId = selected.id; setState('connected'); setStatus('');
+    if (r && r.traffic === false) setStatus(tr('no_traffic'), true);          // ядра работают, но трафик не идёт: честно говорим
+    else if ($('#autofold').checked) setCompact(true);
+  }
+  catch (e) {
+    connectedId = null; setState('idle');
+    if (/CANCELLED/.test(e.message)) setStatus('');                      // отмена пользователем — не ошибка
+    else setStatus(e.message.replace(/^Error invoking remote method.*?Error: /, ''), true);
+  }
   render(); redrawPoints();
 };
 window.vpn.onState(({ state: s }) => {
@@ -379,3 +390,8 @@ applyLang();
 if (!I18N.chosen()) $('#langpick').hidden = false;       // самый первый запуск: спрашиваем язык
 
 function quotaText(sub) { const q = sub.quota; return q && typeof q === 'object' ? `${q.used.toFixed(0)}/${q.total.toFixed(0)} ${tr('gb')}` : ''; }
+
+$('#copylog').onclick = async () => {
+  try { await navigator.clipboard.writeText($('#log').textContent); } catch { return; }
+  const b = $('#copylog'); b.textContent = tr('log_copied'); setTimeout(() => { b.textContent = tr('copy_log'); }, 1500);
+};

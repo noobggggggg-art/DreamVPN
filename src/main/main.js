@@ -97,7 +97,7 @@ app.whenReady().then(() => {
   ipcMain.handle('vpn:connect', async (_e, id, opts) => {
     const s = allServers().find(x => x.id === id);
     if (!s) throw new Error(m('server_not_found'));
-    await core.connect(s, opts || {});
+    return await core.connect(s, opts || {});
   });
   ipcMain.handle('vpn:disconnect', () => core.disconnect());
   ipcMain.handle('servers:ping', async () => {

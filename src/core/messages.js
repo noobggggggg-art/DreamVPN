@@ -11,7 +11,9 @@ const D = {
     core_died: 'Ядро завершилось сразу после запуска, см. лог',
     xray_failed: 'Xray не запустился, см. лог',
     server_not_found: 'Сервер не найден',
-    sub_http: 'Подписка вернула HTTP {status}'
+    sub_http: 'Подписка вернула HTTP {status}',
+    traffic_ok: '[dreamvpn] проверка трафика: ок ({ms} мс)',
+    traffic_fail: '[dreamvpn] проверка трафика не прошла: {err}'
   },
   en: {
     bin_missing: '{name} not found. Put it in the bin/ folder',
@@ -23,7 +25,9 @@ const D = {
     core_died: 'The core exited right after starting, see the log',
     xray_failed: 'Xray failed to start, see the log',
     server_not_found: 'Server not found',
-    sub_http: 'The subscription returned HTTP {status}'
+    sub_http: 'The subscription returned HTTP {status}',
+    traffic_ok: '[dreamvpn] traffic check: ok ({ms} ms)',
+    traffic_fail: '[dreamvpn] traffic check failed: {err}'
   }
 };
 let lang = 'ru';

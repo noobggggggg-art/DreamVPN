@@ -12,7 +12,6 @@ const STRINGS = {
     "gear_title": "Настройки",
     "upd_restart": "Перезапустить",
     "btn_connect": "Подключить",
-    "btn_connecting": "Подключение…",
     "btn_disconnect": "Отключить",
     "settings_title": "Настройки",
     "close_title": "Закрыть (Esc)",
@@ -62,7 +61,12 @@ const STRINGS = {
     "upd_downloading": "Загрузка обновления: {p}%",
     "upd_ready": "Версия {v} загружена",
     "upd_error": "Ошибка обновления: {m}",
-    "upd_banner": "Доступна версия {v}"
+    "upd_banner": "Доступна версия {v}",
+    "no_traffic": "Туннель поднят, но интернет не отвечает. Попробуй другой сервер или подключись заново.",
+    "copy_log": "Копировать лог",
+    "log_copied": "Скопировано",
+    "btn_cancel": "Отменить",
+    "connecting_hint": "Запуск туннеля, это может занять до минуты…"
   },
   "en": {
     "badge_idle": "Not connected",
@@ -75,7 +79,6 @@ const STRINGS = {
     "gear_title": "Settings",
     "upd_restart": "Restart",
     "btn_connect": "Connect",
-    "btn_connecting": "Connecting…",
     "btn_disconnect": "Disconnect",
     "settings_title": "Settings",
     "close_title": "Close (Esc)",
@@ -125,7 +128,12 @@ const STRINGS = {
     "upd_downloading": "Downloading update: {p}%",
     "upd_ready": "Version {v} downloaded",
     "upd_error": "Update error: {m}",
-    "upd_banner": "Version {v} is available"
+    "upd_banner": "Version {v} is available",
+    "no_traffic": "The tunnel is up, but the internet is not responding. Try another server or reconnect.",
+    "copy_log": "Copy log",
+    "log_copied": "Copied",
+    "btn_cancel": "Cancel",
+    "connecting_hint": "Starting the tunnel, this can take up to a minute…"
   }
 };
 if (typeof module !== 'undefined') module.exports = STRINGS;
