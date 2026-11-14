@@ -13,7 +13,8 @@ const D = {
     server_not_found: 'Сервер не найден',
     sub_http: 'Подписка вернула HTTP {status}',
     traffic_ok: '[dreamvpn] проверка трафика: ок ({ms} мс)',
-    traffic_fail: '[dreamvpn] проверка трафика не прошла: {err}'
+    traffic_fail: '[dreamvpn] проверка трафика не прошла: {err}',
+    status_write_failed: '[dreamvpn] не удалось записать status.json: {err}'
   },
   en: {
     bin_missing: '{name} not found. Put it in the bin/ folder',
@@ -27,7 +28,8 @@ const D = {
     server_not_found: 'Server not found',
     sub_http: 'The subscription returned HTTP {status}',
     traffic_ok: '[dreamvpn] traffic check: ok ({ms} ms)',
-    traffic_fail: '[dreamvpn] traffic check failed: {err}'
+    traffic_fail: '[dreamvpn] traffic check failed: {err}',
+    status_write_failed: '[dreamvpn] could not write status.json: {err}'
   }
 };
 let lang = 'ru';

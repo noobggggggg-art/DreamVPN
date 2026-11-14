@@ -10,6 +10,9 @@ const { pickBackend } = require('../parser');
 const { buildSingboxConfig } = require('./singbox');
 const { buildXrayConfig, SOCKS_PORT } = require('./xray');
 const { m } = require('./messages');
+const { StatusWriter } = require('./status');
+
+const CORE_LABEL = { singbox: 'sing-box', xray: 'xray' };       // как это значение видит внешняя программа
 
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 
@@ -30,11 +33,15 @@ function probe(url = 'https://www.gstatic.com/generate_204', timeout = 4000) {
 }
 
 class CoreManager extends EventEmitter {
-  constructor({ binDir, dataDir }) {
+  constructor({ binDir, dataDir, statusFile }) {
     super();
     this.binDir = binDir; this.dataDir = dataDir;
     this.procs = []; this.state = 'idle'; this.current = null; this._abort = false;
-    this.probe = probe; this.verifyMs = 45000; this.pollMs = 1000;      // настраиваются в тестах
+    this.probe = probe; this.verifyMs = 45000; this.pollMs = 1000; this.settleMs = 1500;   // настраиваются в тестах
+    this._target = null; this._core = null; this._startedAt = null;       // для status.json
+    this.status = statusFile
+      ? new StatusWriter(statusFile, { onError: e => this.emit('log', m('status_write_failed', { err: e.message }) + '\n') })
+      : null;
     fs.mkdirSync(dataDir, { recursive: true });
   }
 
@@ -50,32 +57,40 @@ class CoreManager extends EventEmitter {
     proc.stdout.on('data', log); proc.stderr.on('data', log);
     proc.on('exit', code => {
       this.emit('log', m('proc_exit', { label, code: code ?? '-' }) + '\n');
-      if (this.state === 'connected') { this.state = 'idle'; this.emit('state', 'dropped', code); }
+      if (this.state === 'connected') {
+        this.state = 'idle'; this._startedAt = null;
+        this.exportStatus('error');                                   // ядро умерло само: это не штатное отключение
+        this.emit('state', 'dropped', code);
+      }
     });
     this.procs.push(proc);
     return proc;
   }
 
   async connect(server, opts = {}) {
-    await this.disconnect();
+    await this._stop();
     this._abort = false;
+    const backend = pickBackend(server, opts.core);
+    this._target = server; this._core = CORE_LABEL[backend]; this._startedAt = null;
     this._set('connecting');
     try {
-      const backend = pickBackend(server, opts.core);
       this.emit('log', m('core_info', {
         backend, desc: `${server.protocol}/${server.security}/${server.transport} ${server.host}:${server.port}`,
         fm: opts.fragment && server.fragment ? m('fm_on') : m('fm_off')
       }) + '\n');
       if (backend === 'singbox') await this._singbox(server, opts); else await this._xray(server, opts);
-      await sleep(1500);
+      await sleep(this.settleMs);
       if (this._abort) throw new Error('CANCELLED');
       if (this.procs.some(p => p.exitCode !== null)) throw new Error(m('core_died'));
       const traffic = await this._verify();
       if (this._abort) throw new Error('CANCELLED');
-      this.current = server; this._set('connected');
+      this.current = server; this._startedAt = new Date().toISOString(); this._set('connected');
       return { traffic };
     } catch (e) {
-      await this.disconnect(); this._set('idle'); throw e;
+      await this._stop();
+      // отмена пользователем = disconnected; любой другой сбой остаётся в status.json как error до следующего действия
+      this._set('idle', e.message === 'CANCELLED' ? 'disconnected' : 'error');
+      throw e;
     }
   }
 
@@ -119,15 +134,41 @@ class CoreManager extends EventEmitter {
     this._run(sbExe, ['run', '-c', this._writeCfg('singbox-tun.json', tunCfg)], 'sing-box (TUN)');
   }
 
-  async disconnect() {
-    this._abort = true;                              // прерывает идущее подключение
+  /** Останавливает ядра и прерывает идущее подключение. Статус не пишет. */
+  async _stop() {
+    this._abort = true;
     const procs = this.procs;
     this.procs = []; this.current = null;
     if (this.state === 'connected') this.state = 'idle';
     procs.reverse().forEach(p => { try { p.kill(); } catch { /* already dead */ } });
   }
 
-  _set(s) { this.state = s; this.emit('state', s); }
+  async disconnect() {
+    await this._stop();
+    this._startedAt = null;
+    this.exportStatus('disconnected');
+  }
+
+  /** Снимок состояния для внешних программ (status.json). Никогда не бросает исключений и не мешает работе VPN. */
+  exportStatus(state = 'disconnected') {
+    if (!this.status) return null;
+    try {
+      const t = state === 'disconnected' ? null : this._target;
+      return this.status.write({
+        state,
+        server: t ? t.name : null,
+        country: t ? (t.geo?.names?.en || t.country || null) : null,
+        core: t ? this._core : null,
+        startedAt: state === 'connected' ? this._startedAt : null
+      });
+    } catch (e) { this.emit('log', m('status_write_failed', { err: e.message }) + '\n'); return null; }
+  }
+
+  _set(s, exportAs) {
+    this.state = s;
+    this.exportStatus(exportAs || { idle: 'disconnected', connecting: 'connecting', connected: 'connected' }[s]);
+    this.emit('state', s);                            // сначала файл, потом событие: подписчик уже видит актуальный status.json
+  }
 }
 
 module.exports = { CoreManager, probe };

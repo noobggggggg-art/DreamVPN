@@ -81,9 +81,13 @@ function createWindow() {
 app.whenReady().then(() => {
   if (!isAdmin()) { relaunchElevated(); return; }
   const binDir = app.isPackaged ? path.join(process.resourcesPath, 'bin') : path.join(__dirname, '../../bin');
-  core = new CoreManager({ binDir, dataDir: path.join(app.getPath('userData'), 'run') });
+  core = new CoreManager({
+    binDir, dataDir: path.join(app.getPath('userData'), 'run'),
+    statusFile: path.join(app.getPath('appData'), 'DreamVPN', 'status.json')   // для внешних программ
+  });
   core.on('state', (s, code) => win?.webContents.send('vpn:state', { state: s, code }));
   core.on('log', l => win?.webContents.send('vpn:log', l));
+  core.exportStatus('disconnected');                                            // приложение запущено, VPN выключен
 
   ipcMain.handle('servers:import', async (_e, input, subId) => {
     let res;
@@ -122,5 +126,5 @@ app.whenReady().then(() => {
   setupUpdater();
 });
 
-app.on('before-quit', () => core?.disconnect());
+app.on('before-quit', () => { core?.disconnect(); core?.exportStatus('disconnected'); });
 app.on('window-all-closed', () => app.quit());

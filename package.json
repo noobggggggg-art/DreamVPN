@@ -5,7 +5,7 @@
   "main": "src/main/main.js",
   "scripts": {
     "start": "electron .",
-    "test": "node test/parser.test.js && node test/i18n.test.js",
+    "test": "node test/parser.test.js && node test/i18n.test.js && node test/manager.test.js",
     "dist": "electron-builder --win"
   },
   "devDependencies": {
