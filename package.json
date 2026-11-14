@@ -1,6 +1,6 @@
 {
   "name": "dreamvpn",
-  "version": "0.2.2",
+  "version": "0.2.3",
   "description": "VPN client: Electron + sing-box / Xray, TUN only, Windows admin",
   "main": "src/main/main.js",
   "scripts": {
