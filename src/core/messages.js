@@ -14,7 +14,10 @@ const D = {
     sub_http: 'Подписка вернула HTTP {status}',
     traffic_ok: '[dreamvpn] проверка трафика: ок ({ms} мс)',
     traffic_fail: '[dreamvpn] проверка трафика не прошла: {err}',
-    status_write_failed: '[dreamvpn] не удалось записать status.json: {err}'
+    status_write_failed: '[dreamvpn] не удалось записать status.json: {err}',
+    tray_show: 'Показать окно', tray_hide: 'Скрыть окно', tray_disconnect: 'Отключить VPN', tray_quit: 'Выход',
+    tray_tip_idle: 'DreamVPN: не подключено', tray_tip_connecting: 'DreamVPN: подключение…', tray_tip_connected: 'DreamVPN: подключено · {server}',
+    tray_hint: 'DreamVPN продолжает работать в трее. Выйти можно через меню значка.'
   },
   en: {
     bin_missing: '{name} not found. Put it in the bin/ folder',
@@ -29,7 +32,10 @@ const D = {
     sub_http: 'The subscription returned HTTP {status}',
     traffic_ok: '[dreamvpn] traffic check: ok ({ms} ms)',
     traffic_fail: '[dreamvpn] traffic check failed: {err}',
-    status_write_failed: '[dreamvpn] could not write status.json: {err}'
+    status_write_failed: '[dreamvpn] could not write status.json: {err}',
+    tray_show: 'Show window', tray_hide: 'Hide window', tray_disconnect: 'Disconnect VPN', tray_quit: 'Quit',
+    tray_tip_idle: 'DreamVPN: not connected', tray_tip_connecting: 'DreamVPN: connecting…', tray_tip_connected: 'DreamVPN: connected · {server}',
+    tray_hint: 'DreamVPN keeps running in the tray. Use the tray icon menu to quit.'
   }
 };
 let lang = 'ru';

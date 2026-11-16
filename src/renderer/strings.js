@@ -66,7 +66,8 @@ const STRINGS = {
     "copy_log": "Копировать лог",
     "log_copied": "Скопировано",
     "btn_cancel": "Отменить",
-    "connecting_hint": "Запуск туннеля, это может занять до минуты…"
+    "connecting_hint": "Запуск туннеля, это может занять до минуты…",
+    "close_to_tray": "Закрытие окна сворачивает в трей"
   },
   "en": {
     "badge_idle": "Not connected",
@@ -133,7 +134,8 @@ const STRINGS = {
     "copy_log": "Copy log",
     "log_copied": "Copied",
     "btn_cancel": "Cancel",
-    "connecting_hint": "Starting the tunnel, this can take up to a minute…"
+    "connecting_hint": "Starting the tunnel, this can take up to a minute…",
+    "close_to_tray": "Closing the window minimizes to the tray"
   }
 };
 if (typeof module !== 'undefined') module.exports = STRINGS;

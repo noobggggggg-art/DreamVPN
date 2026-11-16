@@ -18,7 +18,7 @@ assert.deepStrictEqual([...used].filter(k => !(k in S.ru)), [], 'в коде е�
 
 // в коде не должно остаться русских строк (комментарии не считаем)
 const strip = t => t.replace(/\/\*[\s\S]*?\*\//g, '').replace(/^\s*\/\/.*$/gm, '').replace(/\s\/\/ .*$/gm, '');
-for (const f of ['src/renderer/renderer.js', 'src/renderer/map.js', 'src/main/main.js', 'src/core/manager.js'])
+for (const f of ['src/renderer/renderer.js', 'src/renderer/map.js', 'src/main/main.js', 'src/main/tray.js', 'src/core/manager.js', 'src/core/status.js'])
   assert.ok(!/[А-Яа-яЁё]/.test(strip(fs.readFileSync(f, 'utf8'))), `${f}: осталась захардкоженная кириллица`);
 const htmlNoPick = html.replace(/<div id="langpick"[\s\S]*?<\/div>\s*<\/div>/, '').replace(/<div class="seg" id="langs">[\s\S]*?<\/div>/, '');
 assert.ok(!/[А-Яа-яЁё]/.test(htmlNoPick), 'index.html: осталась захардкоженная кириллица');

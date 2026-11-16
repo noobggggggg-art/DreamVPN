@@ -395,3 +395,9 @@ $('#copylog').onclick = async () => {
   try { await navigator.clipboard.writeText($('#log').textContent); } catch { return; }
   const b = $('#copylog'); b.textContent = tr('log_copied'); setTimeout(() => { b.textContent = tr('copy_log'); }, 1500);
 };
+
+// ---------- закрытие окна в трей ----------
+$('#traybox').checked = localStorage.getItem('dreamvpn.tray') !== '0';          // по умолчанию включено
+window.vpn.setCloseToTray($('#traybox').checked);
+$('#traybox').onchange = e => { localStorage.setItem('dreamvpn.tray', e.target.checked ? '1' : '0'); window.vpn.setCloseToTray(e.target.checked); };
+window.vpn.onCommand(cmd => { if (cmd === 'disconnect' && state === 'connected') $('#connect').onclick(); });   // «Отключить VPN» из меню трея
